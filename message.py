@@ -29,8 +29,9 @@ def recibir(b):
 def send_message(socket_connection, message):
     if socket_connection and message:
         mensaje_binario = enviar(message)
-        socket_connection.send(mensaje_binario.encode('utf-8'))
-
+        mensaje_string = binario_a_string(mensaje_binario.split('|')[0])  # Convertir de nuevo a string
+        socket_connection.send(mensaje_string.encode('utf-8'))
+        
 def receive_messages(socket_connection, panel_mensajes):
     while True:
         try:
