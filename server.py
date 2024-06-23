@@ -1,5 +1,6 @@
 import socket
 import threading
+from message import recibir
 
 def start_server(host, panel_mensajes, send_message_event, port=8050):
     ser = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -9,12 +10,18 @@ def start_server(host, panel_mensajes, send_message_event, port=8050):
 
     def handle_client(cli, addr):
         while True:
-            recibido = cli.recv(1024).decode('utf-8')
-            if not recibido:
-                break
-            panel_mensajes.insert('end', f"{recibido}\n")
-        cli.close()
+            recibido = cli.recv(1024)
+            message, crc = recibir(recibido)
+            if message == "Error en la transmisión de datos":
+                print(message)
+            else:
+                panel_mensajes.insert('end', f"Mensaje: {message}, CRC: {crc} se usó hamming\n")
 
+        cli.close()
+        
+
+        
+        
     def accept_connections():
         while True:
             cli, addr = ser.accept()
@@ -29,5 +36,3 @@ def start_server(host, panel_mensajes, send_message_event, port=8050):
 
     thread = threading.Thread(target=accept_connections)
     thread.start()
-    # thread = threading.Thread(target=send_messages)
-    # thread.start()
